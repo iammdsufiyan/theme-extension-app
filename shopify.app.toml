@@ -1,0 +1,37 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "fea716ccf289179a39e4cf0af62d43c1"
+name = "app-for-api-shopif"
+handle = "app-for-api-shopif"
+application_url = "https://mrs-drunk-photograph-bee.trycloudflare.com"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = ["https://mrs-drunk-photograph-bee.trycloudflare.com/auth/callback", "https://mrs-drunk-photograph-bee.trycloudflare.com/auth/shopify/callback", "https://mrs-drunk-photograph-bee.trycloudflare.com/api/auth/callback"]
+
+[app_proxy]
+url = "https://mrs-drunk-photograph-bee.trycloudflare.com/apps/product-data"
+subpath = "product-data"
+prefix = "apps"
+
+[pos]
+embedded = false

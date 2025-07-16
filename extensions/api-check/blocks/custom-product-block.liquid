@@ -1,0 +1,127 @@
+<div style="background: #f0f8ff; padding: 15px; border: 2px solid #007bff; border-radius: 8px; margin: 10px 0;">
+  <h3 style="color: #007bff; margin: 0 0 10px 0;">🚀 Form Data Display Block</h3>
+  <p><strong>Current Time:</strong> <span id="current-time"></span></p>
+  <div id="all-products-data" style="margin-top: 10px; padding: 10px; background: #fff; border-radius: 4px;">
+    <p><strong>Loading all form data...</strong></p>
+  </div>
+</div>
+
+<script>
+  (function() {
+    console.log('🎉 Form Data Display Block Loaded!');
+    console.log('🌍 Current URL:', window.location.href);
+    console.log('🏪 Shop Domain:', window.Shopify?.shop);
+    console.log('📅 Timestamp:', new Date().toISOString());
+    
+    // Update time display
+    document.getElementById('current-time').textContent = new Date().toLocaleTimeString();
+    
+    const dataElement = document.getElementById('all-products-data');
+    
+    // API endpoints to try
+    const endpoints = [
+      '/apps/product-data',
+      'https://convergence-third-harvard-operated.trycloudflare.com/apps/product-data',
+      '/api/product-data'
+    ];
+    
+    console.log('🌐 Fetching all form data from your app...');
+    
+    async function fetchAllProducts() {
+      for (let i = 0; i < endpoints.length; i++) {
+        try {
+          const url = endpoints[i];
+          console.log(`🔍 Trying endpoint ${i + 1}:`, url);
+          
+          const response = await fetch(url);
+          console.log(`📡 Response ${i + 1} status:`, response.status);
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`✅ SUCCESS! Form data received:`, data);
+            
+            // Log each product individually for easy reading
+            if (data.allProducts && Array.isArray(data.allProducts)) {
+              console.log(`📦 Found ${data.allProducts.length} products from your form:`);
+              data.allProducts.forEach((product, index) => {
+                console.log(`\n--- Product ${index + 1} ---`);
+                console.log('🆔 ID:', product.id);
+                console.log('📝 Title:', product.title);
+                console.log('📄 Description:', product.description);
+                console.log('💰 Price:', product.price);
+                console.log('🏷️ Category:', product.category);
+                console.log('🔗 Shopify ID:', product.shopifyId);
+                console.log('📅 Created:', product.createdAt);
+              });
+            }
+            
+            // Display in the UI
+            displayProducts(data);
+            return true;
+          }
+        } catch (error) {
+          console.log(`❌ Error from endpoint ${i + 1}:`, error);
+        }
+      }
+      
+      // If all endpoints fail
+      console.log('⚠️ Could not fetch data from any endpoint');
+      dataElement.innerHTML = `
+        <div style="background: #fff3cd; padding: 10px; border-radius: 4px;">
+          <p><strong>⚠️ API Not Available:</strong></p>
+          <p>This is normal in theme preview mode.</p>
+          <p>The form data will be available when the app is properly connected.</p>
+          <p><em>Check console for detailed logs</em></p>
+        </div>
+      `;
+      return false;
+    }
+    
+    function displayProducts(data) {
+      if (data.allProducts && data.allProducts.length > 0) {
+        const productsHtml = data.allProducts.map((product, index) => `
+          <div style="background: #e8f5e8; padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid #28a745;">
+            <h4 style="margin: 0 0 5px 0; color: #155724;">📦 Product ${index + 1}: ${product.title}</h4>
+            <p><strong>Description:</strong> ${product.description || 'No description'}</p>
+            <p><strong>Price:</strong> $${product.price}</p>
+            <p><strong>Category:</strong> ${product.category}</p>
+            <p><strong>Created:</strong> ${new Date(product.createdAt).toLocaleString()}</p>
+            ${product.shopifyId ? `<p><strong>Shopify ID:</strong> ${product.shopifyId}</p>` : ''}
+          </div>
+        `).join('');
+        
+        dataElement.innerHTML = `
+          <div>
+            <h4 style="color: #28a745; margin: 0 0 10px 0;">✅ Found ${data.allProducts.length} Products from Your Form:</h4>
+            ${productsHtml}
+          </div>
+        `;
+      } else {
+        dataElement.innerHTML = `
+          <div style="background: #fff3cd; padding: 10px; border-radius: 4px;">
+            <p><strong>📝 No Products Found</strong></p>
+            <p>Create some products using the form in your app first!</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Start fetching data
+    fetchAllProducts();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Custom Product Block",
+  "target": "section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "autofill": true
+    }
+  ]
+}
+{% endschema %}
